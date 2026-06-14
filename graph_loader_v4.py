@@ -6,9 +6,7 @@ import networkx as nx
 def load_graph_v4():
 
     BASE_DIR = os.path.dirname(
-        os.path.dirname(
-        #     os.path.abspath(__file__)
-        )
+        os.path.abspath(__file__)
     )
 
     graph_path = os.path.join(
@@ -18,7 +16,6 @@ def load_graph_v4():
     )
 
     print("\n=== LOADING GRAPH ===")
-
     print(graph_path)
 
     G = ox.load_graphml(
@@ -26,12 +23,10 @@ def load_graph_v4():
     )
 
     G = G.subgraph(
-
         max(
             nx.strongly_connected_components(G),
             key=len
         )
-
     ).copy()
 
     return G
