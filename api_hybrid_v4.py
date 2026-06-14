@@ -252,3 +252,129 @@ def root():
                 TIME_SCENARIOS.keys()
             )
     }
+
+@app.get("/route/v1/driving/{coordinates}")
+def osrm_route(
+    coordinates: str,
+    overview: str = "false"
+):
+
+    start, end = coordinates.split(";")
+
+    lon1, lat1 = map(
+        float,
+        start.split(",")
+    )
+
+    lon2, lat2 = map(
+        float,
+        end.split(",")
+    )
+
+    result = route_scenario_v4(
+        G,
+        LOOKUP_MEDIUM,
+        DEFAULT_VEHICLE,
+        9,
+        lat1,
+        lon1,
+        lat2,
+        lon2
+    )
+
+    route = result["route"]
+    stats = result["stats"]
+
+    coordinates_geo = (
+        route_to_coordinates(route)
+    )
+
+    response = {
+
+        "code": "Ok",
+
+        "routes": [
+
+            {
+
+                "weight_name":
+                    "routability",
+
+                "weight":
+                    stats[
+                        "travel_time_hr"
+                    ] * 3600,
+
+                "duration":
+                    stats[
+                        "travel_time_hr"
+                    ] * 3600,
+
+                "distance":
+                    stats[
+                        "distance_km"
+                    ] * 1000,
+
+                "legs": [
+
+                    {
+
+                        "summary": "",
+
+                        "weight":
+                            stats[
+                                "travel_time_hr"
+                            ] * 3600,
+
+                        "duration":
+                            stats[
+                                "travel_time_hr"
+                            ] * 3600,
+
+                        "distance":
+                            stats[
+                                "distance_km"
+                            ] * 1000,
+
+                        "steps": []
+                    }
+                ]
+            }
+        ],
+
+        "waypoints": [
+
+            {
+                "location":
+                    [lon1, lat1],
+
+                "name": "",
+
+                "distance": 0
+            },
+
+            {
+                "location":
+                    [lon2, lat2],
+
+                "name": "",
+
+                "distance": 0
+            }
+        ]
+    }
+
+    if overview == "full":
+
+        response["routes"][0][
+            "geometry"
+        ] = {
+
+            "type":
+                "LineString",
+
+            "coordinates":
+                coordinates_geo
+        }
+
+    return response
