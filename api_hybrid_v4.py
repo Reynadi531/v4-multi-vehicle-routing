@@ -378,3 +378,122 @@ def osrm_route(
         }
 
     return response
+# ==================================================
+# MULTI SCENARIO ROUTING API
+# ==================================================
+
+@app.get("/route/v1/driving/scenarios/{coordinates}")
+def route_scenarios(
+    coordinates: str
+):
+
+    start, end = coordinates.split(";")
+
+    lon1, lat1 = map(
+        float,
+        start.split(",")
+    )
+
+    lon2, lat2 = map(
+        float,
+        end.split(",")
+    )
+
+    routes = []
+
+    for scenario, hour in TIME_SCENARIOS.items():
+
+        try:
+
+            result = route_scenario_v4(
+                G,
+                LOOKUP_MEDIUM,
+                DEFAULT_VEHICLE,
+                hour,
+                lat1,
+                lon1,
+                lat2,
+                lon2
+            )
+
+            route = result["route"]
+
+            stats = result["stats"]
+
+            route_coordinates = (
+                route_to_coordinates(
+                    route
+                )
+            )
+
+            routes.append({
+
+                "scenario":
+                    scenario,
+
+                "distance_km":
+                    round(
+                        stats["distance_km"],
+                        2
+                    ),
+
+                "travel_time_hr":
+                    round(
+                        stats["travel_time_hr"],
+                        2
+                    ),
+
+                "average_speed_kmh":
+                    round(
+                        stats[
+                            "average_speed_kmh"
+                        ],
+                        2
+                    ),
+
+                "route_point_count":
+                    len(
+                        route_coordinates
+                    ),
+
+                "route_coordinates":
+                    route_coordinates
+            })
+
+        except Exception as e:
+
+            routes.append({
+
+                "scenario":
+                    scenario,
+
+                "error":
+                    str(e)
+            })
+
+    return {
+
+        "vehicle":
+            DEFAULT_VEHICLE.upper(),
+
+        "origin": {
+
+            "lat":
+                lat1,
+
+            "lon":
+                lon1
+        },
+
+        "destination": {
+
+            "lat":
+                lat2,
+
+            "lon":
+                lon2
+        },
+
+        "routes":
+            routes
+    }
