@@ -253,136 +253,138 @@ def root():
             )
     }
 
-@app.get("/route/v1/driving/{coordinates}")
-def osrm_route(
-    coordinates: str,
-    overview: str = "false"
-):
+# @app.get("/route/v1/driving/{coordinates}")
+# def osrm_route(
+#     coordinates: str,
+#     overview: str = "false"
+# ):
 
-    start, end = coordinates.split(";")
+#     start, end = coordinates.split(";")
 
-    lon1, lat1 = map(
-        float,
-        start.split(",")
-    )
+#     lon1, lat1 = map(
+#         float,
+#         start.split(",")
+#     )
 
-    lon2, lat2 = map(
-        float,
-        end.split(",")
-    )
+#     lon2, lat2 = map(
+#         float,
+#         end.split(",")
+#     )
 
-    result = route_scenario_v4(
-        G,
-        LOOKUP_MEDIUM,
-        DEFAULT_VEHICLE,
-        9,
-        lat1,
-        lon1,
-        lat2,
-        lon2
-    )
+#     result = route_scenario_v4(
+#         G,
+#         LOOKUP_MEDIUM,
+#         DEFAULT_VEHICLE,
+#         9,
+#         lat1,
+#         lon1,
+#         lat2,
+#         lon2
+#     )
 
-    route = result["route"]
-    stats = result["stats"]
+#     route = result["route"]
+#     stats = result["stats"]
 
-    coordinates_geo = (
-        route_to_coordinates(route)
-    )
+#     coordinates_geo = (
+#         route_to_coordinates(route)
+#     )
 
-    response = {
+#     response = {
 
-        "code": "Ok",
+#         "code": "Ok",
 
-        "routes": [
+#         "routes": [
 
-            {
+#             {
 
-                "weight_name":
-                    "routability",
+#                 "weight_name":
+#                     "routability",
 
-                "weight":
-                    stats[
-                        "travel_time_hr"
-                    ] * 3600,
+#                 "weight":
+#                     stats[
+#                         "travel_time_hr"
+#                     ] * 3600,
 
-                "duration":
-                    stats[
-                        "travel_time_hr"
-                    ] * 3600,
+#                 "duration":
+#                     stats[
+#                         "travel_time_hr"
+#                     ] * 3600,
 
-                "distance":
-                    stats[
-                        "distance_km"
-                    ] * 1000,
+#                 "distance":
+#                     stats[
+#                         "distance_km"
+#                     ] * 1000,
 
-                "legs": [
+#                 "legs": [
 
-                    {
+#                     {
 
-                        "summary": "",
+#                         "summary": "",
 
-                        "weight":
-                            stats[
-                                "travel_time_hr"
-                            ] * 3600,
+#                         "weight":
+#                             stats[
+#                                 "travel_time_hr"
+#                             ] * 3600,
 
-                        "duration":
-                            stats[
-                                "travel_time_hr"
-                            ] * 3600,
+#                         "duration":
+#                             stats[
+#                                 "travel_time_hr"
+#                             ] * 3600,
 
-                        "distance":
-                            stats[
-                                "distance_km"
-                            ] * 1000,
+#                         "distance":
+#                             stats[
+#                                 "distance_km"
+#                             ] * 1000,
 
-                        "steps": []
-                    }
-                ]
-            }
-        ],
+#                         "steps": []
+#                     }
+#                 ]
+#             }
+#         ],
 
-        "waypoints": [
+#         "waypoints": [
 
-            {
-                "location":
-                    [lon1, lat1],
+#             {
+#                 "location":
+#                     [lon1, lat1],
 
-                "name": "",
+#                 "name": "",
 
-                "distance": 0
-            },
+#                 "distance": 0
+#             },
 
-            {
-                "location":
-                    [lon2, lat2],
+#             {
+#                 "location":
+#                     [lon2, lat2],
 
-                "name": "",
+#                 "name": "",
 
-                "distance": 0
-            }
-        ]
-    }
+#                 "distance": 0
+#             }
+#         ]
+#     }
 
-    if overview == "full":
+#     if overview == "full":
 
-        response["routes"][0][
-            "geometry"
-        ] = {
+#         response["routes"][0][
+#             "geometry"
+#         ] = {
 
-            "type":
-                "LineString",
+#             "type":
+#                 "LineString",
 
-            "coordinates":
-                coordinates_geo
-        }
+#             "coordinates":
+#                 coordinates_geo
+#         }
 
-    return response
+#     return response
 # ==================================================
 # MULTI SCENARIO ROUTING API
 # ==================================================
 
-@app.get("/route/v1/driving/scenarios/{coordinates}")
+# @app.get("/route/v1/driving/scenarios/{coordinates}")
+
+@app.get("/route/v1/driving/{coordinates}")
 def route_scenarios(
     coordinates: str
 ):
