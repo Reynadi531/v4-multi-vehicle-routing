@@ -498,23 +498,11 @@ def route_scenarios(
             routes
     }
 
-# ==================================================
-# ARRIVAL ROUTING API
-# ==================================================
-
 @app.get("/route/v1/driving/arrival/{coordinates}")
 def arrival_route(
     coordinates: str,
     overview: str = "false"
 ):
-    # """
-    # Example:
-
-    # /route/v1/driving/arrival/
-    # 09:15,106.77815,-6.321282;106.81234,-6.91474
-
-    # arrival_time,lon1,lat1;lon2,lat2
-    # """
 
     try:
 
@@ -557,7 +545,7 @@ def arrival_route(
         )
 
         # ==========================================
-        # OPTIMIZE DEPARTURE
+        # ARRIVAL OPTIMIZATION
         # ==========================================
 
         result = estimate_departure_time_v4(
@@ -587,49 +575,64 @@ def arrival_route(
             )
         )
 
-        departure_hour = (
-            result[
-                "departure_hour"
-            ]
+        route_point_count = len(
+            coordinates_geo
         )
 
-        departure_minute = int(
+        # ==========================================
+        # FORMAT DEPARTURE TIME
+        # ==========================================
+
+        departure_hour = result[
+            "departure_hour"
+        ]
+
+        dep_h = int(
+            departure_hour
+        )
+
+        dep_m = int(
 
             (
                 departure_hour
                 -
-                int(
-                    departure_hour
-                )
+                dep_h
             )
             *
             60
         )
 
-        arrival_hour = (
-            result[
-                "arrival_hour"
-            ]
-        )
+        # ==========================================
+        # FORMAT ARRIVAL TIME
+        # ==========================================
 
-        arrival_h = int(
+        arrival_hour = result[
+            "arrival_hour"
+        ]
+
+        arr_h = int(
             arrival_hour
         )
 
-        arrival_m = int(
+        arr_m = int(
 
             (
                 arrival_hour
                 -
-                arrival_h
+                arr_h
             )
             *
             60
         )
 
+        # ==========================================
+        # RESPONSE
+        # ==========================================
+
         response = {
 
-            "code": "Ok",
+            "code":
+                "Ok",
 
             "vehicle":
                 DEFAULT_VEHICLE.upper(),
@@ -641,13 +644,13 @@ def arrival_route(
 
             "recommended_departure":
 
-                f"{int(departure_hour):02d}:"
-                f"{departure_minute:02d}",
+                f"{dep_h:02d}:"
+                f"{dep_m:02d}",
 
             "estimated_arrival":
 
-                f"{arrival_h:02d}:"
-                f"{arrival_m:02d}",
+                f"{arr_h:02d}:"
+                f"{arr_m:02d}",
 
             "arrival_error_minutes":
 
@@ -671,27 +674,81 @@ def arrival_route(
 
                     "weight":
 
-                        stats[
-                            "travel_time_hr"
-                        ]
-                        *
-                        3600,
+                        round(
+
+                            stats[
+                                "travel_time_hr"
+                            ]
+                            *
+                            3600,
+
+                            2
+                        ),
 
                     "duration":
 
-                        stats[
-                            "travel_time_hr"
-                        ]
-                        *
-                        3600,
+                        round(
+
+                            stats[
+                                "travel_time_hr"
+                            ]
+                            *
+                            3600,
+
+                            2
+                        ),
 
                     "distance":
 
-                        stats[
-                            "distance_km"
-                        ]
-                        *
-                        1000,
+                        round(
+
+                            stats[
+                                "distance_km"
+                            ]
+                            *
+                            1000,
+
+                            2
+                        ),
+
+                    "distance_km":
+
+                        round(
+
+                            stats[
+                                "distance_km"
+                            ],
+
+                            2
+                        ),
+
+                    "travel_time_hr":
+
+                        round(
+
+                            stats[
+                                "travel_time_hr"
+                            ],
+
+                            2
+                        ),
+
+                    "average_speed_kmh":
+
+                        round(
+
+                            stats[
+                                "average_speed_kmh"
+                            ],
+
+                            2
+                        ),
+
+                    "route_point_count":
+                        route_point_count,
+
+                    "route_coordinates":
+                        coordinates_geo,
 
                     "legs": [
 
@@ -701,27 +758,42 @@ def arrival_route(
 
                             "weight":
 
-                                stats[
-                                    "travel_time_hr"
-                                ]
-                                *
-                                3600,
+                                round(
+
+                                    stats[
+                                        "travel_time_hr"
+                                    ]
+                                    *
+                                    3600,
+
+                                    2
+                                ),
 
                             "duration":
 
-                                stats[
-                                    "travel_time_hr"
-                                ]
-                                *
-                                3600,
+                                round(
+
+                                    stats[
+                                        "travel_time_hr"
+                                    ]
+                                    *
+                                    3600,
+
+                                    2
+                                ),
 
                             "distance":
 
-                                stats[
-                                    "distance_km"
-                                ]
-                                *
-                                1000,
+                                round(
+
+                                    stats[
+                                        "distance_km"
+                                    ]
+                                    *
+                                    1000,
+
+                                    2
+                                ),
 
                             "steps": []
                         }
@@ -734,6 +806,7 @@ def arrival_route(
                 {
 
                     "location":
+
                         [
                             lon1,
                             lat1
@@ -747,6 +820,7 @@ def arrival_route(
                 {
 
                     "location":
+
                         [
                             lon2,
                             lat2
@@ -758,6 +832,10 @@ def arrival_route(
                 }
             ]
         }
+
+        # ==========================================
+        # OPTIONAL GEOMETRY
+        # ==========================================
 
         if overview == "full":
 
