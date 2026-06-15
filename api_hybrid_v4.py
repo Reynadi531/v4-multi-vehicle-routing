@@ -253,138 +253,136 @@ def root():
             )
     }
 
-# @app.get("/route/v1/driving/{coordinates}")
-# def osrm_route(
-#     coordinates: str,
-#     overview: str = "false"
-# ):
+@app.get("/route/v1/driving/{coordinates}")
+def osrm_route(
+    coordinates: str,
+    overview: str = "false"
+):
 
-#     start, end = coordinates.split(";")
+    start, end = coordinates.split(";")
 
-#     lon1, lat1 = map(
-#         float,
-#         start.split(",")
-#     )
+    lon1, lat1 = map(
+        float,
+        start.split(",")
+    )
 
-#     lon2, lat2 = map(
-#         float,
-#         end.split(",")
-#     )
+    lon2, lat2 = map(
+        float,
+        end.split(",")
+    )
 
-#     result = route_scenario_v4(
-#         G,
-#         LOOKUP_MEDIUM,
-#         DEFAULT_VEHICLE,
-#         9,
-#         lat1,
-#         lon1,
-#         lat2,
-#         lon2
-#     )
+    result = route_scenario_v4(
+        G,
+        LOOKUP_MEDIUM,
+        DEFAULT_VEHICLE,
+        9,
+        lat1,
+        lon1,
+        lat2,
+        lon2
+    )
 
-#     route = result["route"]
-#     stats = result["stats"]
+    route = result["route"]
+    stats = result["stats"]
 
-#     coordinates_geo = (
-#         route_to_coordinates(route)
-#     )
+    coordinates_geo = (
+        route_to_coordinates(route)
+    )
 
-#     response = {
+    response = {
 
-#         "code": "Ok",
+        "code": "Ok",
 
-#         "routes": [
+        "routes": [
 
-#             {
+            {
 
-#                 "weight_name":
-#                     "routability",
+                "weight_name":
+                    "routability",
 
-#                 "weight":
-#                     stats[
-#                         "travel_time_hr"
-#                     ] * 3600,
+                "weight":
+                    stats[
+                        "travel_time_hr"
+                    ] * 3600,
 
-#                 "duration":
-#                     stats[
-#                         "travel_time_hr"
-#                     ] * 3600,
+                "duration":
+                    stats[
+                        "travel_time_hr"
+                    ] * 3600,
 
-#                 "distance":
-#                     stats[
-#                         "distance_km"
-#                     ] * 1000,
+                "distance":
+                    stats[
+                        "distance_km"
+                    ] * 1000,
 
-#                 "legs": [
+                "legs": [
 
-#                     {
+                    {
 
-#                         "summary": "",
+                        "summary": "",
 
-#                         "weight":
-#                             stats[
-#                                 "travel_time_hr"
-#                             ] * 3600,
+                        "weight":
+                            stats[
+                                "travel_time_hr"
+                            ] * 3600,
 
-#                         "duration":
-#                             stats[
-#                                 "travel_time_hr"
-#                             ] * 3600,
+                        "duration":
+                            stats[
+                                "travel_time_hr"
+                            ] * 3600,
 
-#                         "distance":
-#                             stats[
-#                                 "distance_km"
-#                             ] * 1000,
+                        "distance":
+                            stats[
+                                "distance_km"
+                            ] * 1000,
 
-#                         "steps": []
-#                     }
-#                 ]
-#             }
-#         ],
+                        "steps": []
+                    }
+                ]
+            }
+        ],
 
-#         "waypoints": [
+        "waypoints": [
 
-#             {
-#                 "location":
-#                     [lon1, lat1],
+            {
+                "location":
+                    [lon1, lat1],
 
-#                 "name": "",
+                "name": "",
 
-#                 "distance": 0
-#             },
+                "distance": 0
+            },
 
-#             {
-#                 "location":
-#                     [lon2, lat2],
+            {
+                "location":
+                    [lon2, lat2],
 
-#                 "name": "",
+                "name": "",
 
-#                 "distance": 0
-#             }
-#         ]
-#     }
+                "distance": 0
+            }
+        ]
+    }
 
-#     if overview == "full":
+    if overview == "full":
 
-#         response["routes"][0][
-#             "geometry"
-#         ] = {
+        response["routes"][0][
+            "geometry"
+        ] = {
 
-#             "type":
-#                 "LineString",
+            "type":
+                "LineString",
 
-#             "coordinates":
-#                 coordinates_geo
-#         }
+            "coordinates":
+                coordinates_geo
+        }
 
-#     return response
+    return response
 # ==================================================
 # MULTI SCENARIO ROUTING API
 # ==================================================
 
-# @app.get("/route/v1/driving/scenarios/{coordinates}")
-
-@app.get("/route/v1/driving/{coordinates}")
+@app.get("/route/v1/driving/scenarios/{coordinates}")
 def route_scenarios(
     coordinates: str
 ):
@@ -499,3 +497,292 @@ def route_scenarios(
         "routes":
             routes
     }
+
+# ==================================================
+# ARRIVAL ROUTING API
+# ==================================================
+
+@app.get("/route/v1/driving/arrival/{coordinates}")
+def arrival_route(
+    coordinates: str,
+    overview: str = "false"
+):
+    # """
+    # Example:
+
+    # /route/v1/driving/arrival/
+    # 09:15,106.77815,-6.321282;106.81234,-6.91474
+
+    # arrival_time,lon1,lat1;lon2,lat2
+    # """
+
+    try:
+
+        # ==========================================
+        # PARSE ARRIVAL TIME
+        # ==========================================
+
+        arrival_str, rest = coordinates.split(
+            ",",
+            1
+        )
+
+        hour, minute = arrival_str.split(
+            ":"
+        )
+
+        target_arrival_hour = (
+
+            int(hour)
+
+            +
+
+            int(minute) / 60
+        )
+
+        # ==========================================
+        # PARSE COORDINATES
+        # ==========================================
+
+        start, end = rest.split(";")
+
+        lon1, lat1 = map(
+            float,
+            start.split(",")
+        )
+
+        lon2, lat2 = map(
+            float,
+            end.split(",")
+        )
+
+        # ==========================================
+        # OPTIMIZE DEPARTURE
+        # ==========================================
+
+        result = estimate_departure_time_v4(
+
+            G,
+
+            LOOKUP_MEDIUM,
+
+            DEFAULT_VEHICLE,
+
+            target_arrival_hour,
+
+            lat1,
+            lon1,
+
+            lat2,
+            lon2
+        )
+
+        route = result["route"]
+
+        stats = result["stats"]
+
+        coordinates_geo = (
+            route_to_coordinates(
+                route
+            )
+        )
+
+        departure_hour = (
+            result[
+                "departure_hour"
+            ]
+        )
+
+        departure_minute = int(
+
+            (
+                departure_hour
+                -
+                int(
+                    departure_hour
+                )
+            )
+            *
+            60
+        )
+
+        arrival_hour = (
+            result[
+                "arrival_hour"
+            ]
+        )
+
+        arrival_h = int(
+            arrival_hour
+        )
+
+        arrival_m = int(
+
+            (
+                arrival_hour
+                -
+                arrival_h
+            )
+            *
+            60
+        )
+
+        response = {
+
+            "code": "Ok",
+
+            "vehicle":
+                DEFAULT_VEHICLE.upper(),
+
+            "target_arrival":
+
+                f"{int(hour):02d}:"
+                f"{int(minute):02d}",
+
+            "recommended_departure":
+
+                f"{int(departure_hour):02d}:"
+                f"{departure_minute:02d}",
+
+            "estimated_arrival":
+
+                f"{arrival_h:02d}:"
+                f"{arrival_m:02d}",
+
+            "arrival_error_minutes":
+
+                round(
+
+                    result[
+                        "arrival_error"
+                    ]
+                    *
+                    60,
+
+                    1
+                ),
+
+            "routes": [
+
+                {
+
+                    "weight_name":
+                        "routability",
+
+                    "weight":
+
+                        stats[
+                            "travel_time_hr"
+                        ]
+                        *
+                        3600,
+
+                    "duration":
+
+                        stats[
+                            "travel_time_hr"
+                        ]
+                        *
+                        3600,
+
+                    "distance":
+
+                        stats[
+                            "distance_km"
+                        ]
+                        *
+                        1000,
+
+                    "legs": [
+
+                        {
+
+                            "summary": "",
+
+                            "weight":
+
+                                stats[
+                                    "travel_time_hr"
+                                ]
+                                *
+                                3600,
+
+                            "duration":
+
+                                stats[
+                                    "travel_time_hr"
+                                ]
+                                *
+                                3600,
+
+                            "distance":
+
+                                stats[
+                                    "distance_km"
+                                ]
+                                *
+                                1000,
+
+                            "steps": []
+                        }
+                    ]
+                }
+            ],
+
+            "waypoints": [
+
+                {
+
+                    "location":
+                        [
+                            lon1,
+                            lat1
+                        ],
+
+                    "name": "",
+
+                    "distance": 0
+                },
+
+                {
+
+                    "location":
+                        [
+                            lon2,
+                            lat2
+                        ],
+
+                    "name": "",
+
+                    "distance": 0
+                }
+            ]
+        }
+
+        if overview == "full":
+
+            response[
+                "routes"
+            ][0][
+                "geometry"
+            ] = {
+
+                "type":
+                    "LineString",
+
+                "coordinates":
+                    coordinates_geo
+            }
+
+        return response
+
+    except Exception as e:
+
+        return {
+
+            "code":
+                "Error",
+
+            "message":
+                str(e)
+        }
