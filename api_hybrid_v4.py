@@ -11,9 +11,9 @@ from graph_loader_v4 import (
     load_graph_v4
 )
 
-# from arrival_optimizer_v4 import (
-#     estimate_departure_time_v4
-# )
+from arrival_optimizer_v4 import (
+    estimate_departure_time_v4
+)
 
 from scenario_router_v4 import (
     route_scenario_v4
