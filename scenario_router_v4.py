@@ -49,7 +49,11 @@ def route_scenario_v4(
     vehicle_type,
     hour
     )
-    
+    print("\n=== DEBUG SCENARIO ===")
+    print("hour =", hour)
+    print("route is None =", route is None)
+    print("stats is None =", stats is None)
+    print("stats =", stats)
     return {
 
         "hour": hour,
