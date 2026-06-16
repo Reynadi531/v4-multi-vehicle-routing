@@ -65,9 +65,30 @@ def route_stats_v4(
             edge_data
         )
 
-        total_time_sec += (
-            hybrid_time_hr * 3600
-        )
+        # ======================================
+        # FALLBACK IF INVALID
+        # ======================================
+
+        if (
+            hybrid_time_hr is None
+            or
+            hybrid_time_hr >= 1e9
+        ):
+
+            travel_time = edge.get(
+                "travel_time",
+                0
+            )
+
+            total_time_sec += (
+                float(travel_time)
+            )
+
+        else:
+
+            total_time_sec += (
+                hybrid_time_hr * 3600
+            )
 
         total_edges += 1
 
@@ -131,6 +152,16 @@ def route_stats_v4(
         "Average Speed:",
         round(avg_speed, 2),
         "km/h"
+    )
+
+    print(
+        "Edges:",
+        total_edges
+    )
+
+    print(
+        "Nodes:",
+        len(route)
     )
 
     return result
