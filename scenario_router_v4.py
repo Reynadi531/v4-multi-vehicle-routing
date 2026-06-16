@@ -37,11 +37,19 @@ def route_scenario_v4(
         lon2
     )
 
-    stats = route_stats_v4(
-        G,
-        route
-    )
+    # stats = route_stats_v4(
+    #     G,
+    #     route
+    # )
 
+    stats = route_stats_v4(
+    G,
+    route,
+    lookup,
+    vehicle_type,
+    hour
+    )
+    
     return {
 
         "hour": hour,
