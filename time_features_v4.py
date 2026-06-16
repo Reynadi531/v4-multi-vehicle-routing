@@ -1,93 +1,44 @@
+# ==================================================
+# TIME FEATURES V4
+# ==================================================
+
 def get_time_bucket_v4(hour):
 
     """
-    Membagi waktu menjadi:
-    - morning_peak
-    - evening_peak
-    - off_peak
+    Time Window Routing
+
+    early_morning : 00:00 - 05:59
+    morning       : 06:00 - 11:59
+    afternoon     : 12:00 - 17:59
+    night         : 18:00 - 23:59
     """
 
-    # =========================
-    # MORNING PEAK
-    # =========================
+    if 0 <= hour < 6:
 
-    if 7 <= hour <= 9:
+        return "early_morning"
 
-        return "morning_peak"
+    elif 6 <= hour < 12:
 
-    # =========================
-    # EVENING PEAK
-    # =========================
+        return "morning"
 
-    elif 16 <= hour <= 19:
+    elif 12 <= hour < 18:
 
-        return "evening_peak"
-
-    # =========================
-    # OFF PEAK
-    # =========================
+        return "afternoon"
 
     else:
 
-        return "off_peak"
+        return "night"
 
 
 def get_day_type_v4(dayofweek):
 
-    """
-    0 = Monday
-    6 = Sunday
-    """
-
-    # =========================
-    # WEEKDAY
-    # =========================
-
     if dayofweek < 5:
 
         return "weekday"
-
-    # =========================
-    # WEEKEND
-    # =========================
 
     return "weekend"
 
 
 def get_hour_category_v4(hour):
 
-    """
-    Kategori waktu lebih detail
-    """
-
-    # =========================
-    # EARLY MORNING
-    # =========================
-
-    if 0 <= hour < 6:
-
-        return "early_morning"
-
-    # =========================
-    # MORNING
-    # =========================
-
-    elif 6 <= hour < 12:
-
-        return "morning"
-
-    # =========================
-    # AFTERNOON
-    # =========================
-
-    elif 12 <= hour < 18:
-
-        return "afternoon"
-
-    # =========================
-    # NIGHT
-    # =========================
-
-    else:
-
-        return "night"
+    return get_time_bucket_v4(hour)
