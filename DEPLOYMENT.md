@@ -72,6 +72,25 @@ Any token with read access to the repo works, such as a fine-grained PAT with
 If you build an older commit from a pointer-only checkout, set `GIT_REF` to a
 branch or tag that has the same graph. Otherwise the sha256 check fails.
 
+### Prebuilt image from GHCR
+
+`.github/workflows/docker-publish.yml` builds the image and pushes it to
+`ghcr.io/reynadi531/v4-multi-vehicle-routing` on every push to `main` and on
+every `v*` tag. Pull requests are built but not pushed.
+
+| Trigger | Tags |
+| --- | --- |
+| Push to `main` | `latest`, `sha-<short>` |
+| Tag `v1.2.3` | `1.2.3`, `1.2`, `sha-<short>` |
+
+The package is private by default, so log in before pulling. Use a token with
+`read:packages`:
+
+```bash
+echo "$GH_TOKEN" | docker login ghcr.io -u <github-user> --password-stdin
+docker pull ghcr.io/reynadi531/v4-multi-vehicle-routing:latest
+```
+
 ## Run
 
 ```bash
