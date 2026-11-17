@@ -1,0 +1,8 @@
+fastapi>=0.115,<1
+uvicorn>=0.30,<1
+pydantic>=2.7,<3
+osmnx>=2.0,<3
+networkx>=3.3,<4
+numpy>=2.0,<3
+# osmnx nearest_nodes on an unprojected (EPSG:4326) graph uses a BallTree
+scikit-learn>=1.5,<2

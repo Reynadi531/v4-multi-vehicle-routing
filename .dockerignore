@@ -1,0 +1,14 @@
+# .git holds a second copy of every LFS object; never send it as build context
+.git
+.gitignore
+.gitattributes
+.dockerignore
+Dockerfile
+
+**/__pycache__
+**/*.pyc
+.venv
+venv
+.env
+*.html
+saved_models
