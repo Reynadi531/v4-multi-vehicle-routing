@@ -91,6 +91,10 @@ ENV PATH=/venv/bin:$PATH \
 
 EXPOSE 8000
 
+# Exec form only: distroless has no /bin/sh, so shell-form checks never run.
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+    CMD ["/venv/bin/python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/', timeout=5)"]
+
 # The graph is loaded at import time, so keep a single worker:
 # each extra worker loads its own copy of the graph into memory.
 ENTRYPOINT ["/venv/bin/python3", "-m", "uvicorn", "api_hybrid_v4:app"]
